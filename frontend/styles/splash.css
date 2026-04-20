@@ -1,0 +1,110 @@
+/* ══ SPLASH — #splash, #agTrans, splash animations ══ */
+
+#splash{
+  position:fixed;inset:0;background:#000;z-index:9999;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  pointer-events:all;overflow:hidden;
+}
+#splash.out{animation:splashFade .65s ease forwards;}
+@keyframes splashFade{to{opacity:0;pointer-events:none}}
+
+#splash-letters{
+  display:flex;align-items:center;justify-content:center;gap:2px;
+  margin-bottom:28px;
+  transition:transform .9s cubic-bezier(.4,0,.2,1),gap .9s ease;
+}
+#splash-letters.gather{transform:scale(.72);gap:0px;}
+
+.sl{
+  font-size:92px;font-weight:900;letter-spacing:-3px;
+  color:transparent;-webkit-text-stroke:2px rgba(255,255,255,.12);
+  display:inline-block;opacity:0;
+}
+#sl-m.lit{animation:flyInL .55s cubic-bezier(.2,1,.3,1) forwards;}
+#sl-a.lit{animation:flyInT .55s cubic-bezier(.2,1,.3,1) .12s forwards;}
+#sl-x.lit{animation:flyInR .55s cubic-bezier(.2,1,.3,1) .24s forwards;}
+
+@keyframes flyInL{
+  0%{opacity:0;color:transparent;transform:translateX(-110px) rotate(-8deg);}
+  60%{color:#fff;filter:drop-shadow(0 0 22px rgba(68,204,255,.9)) drop-shadow(0 0 50px rgba(68,204,255,.4));transform:translateX(4px) rotate(1deg);}
+  100%{opacity:1;color:#fff;filter:drop-shadow(0 0 8px rgba(68,204,255,.3));transform:translateX(0) rotate(0);}
+}
+@keyframes flyInT{
+  0%{opacity:0;color:transparent;transform:translateY(-80px) scale(.7);}
+  60%{color:#fff;filter:drop-shadow(0 0 22px rgba(85,51,238,.9));transform:translateY(3px) scale(1.06);}
+  100%{opacity:1;color:#fff;filter:drop-shadow(0 0 8px rgba(85,51,238,.3));transform:translateY(0) scale(1);}
+}
+@keyframes flyInR{
+  0%{opacity:0;color:transparent;transform:translateX(110px) rotate(8deg);}
+  60%{color:#fff;filter:drop-shadow(0 0 22px rgba(153,51,221,.9));transform:translateX(-4px) rotate(-1deg);}
+  100%{opacity:1;color:#fff;filter:drop-shadow(0 0 8px rgba(153,51,221,.3));transform:translateX(0) rotate(0);}
+}
+
+#splash-sub{
+  font-size:17px;color:rgba(255,255,255,.65);font-weight:300;letter-spacing:.4px;
+  opacity:0;transform:translateY(14px);
+  transition:opacity .55s ease,transform .55s ease;
+}
+#splash-sub.show{opacity:1;transform:translateY(0);}
+
+/* ══ AGENT TRANSITION OVERLAY ══ */
+#agTrans{
+  position:fixed;inset:0;z-index:8000;background:rgba(0,0,0,.97);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;
+  transition:opacity .28s ease;
+}
+#agTrans.show{opacity:1;pointer-events:all;}
+#agTrans.out{animation:agTransOut .35s ease forwards;}
+@keyframes agTransOut{to{opacity:0}}
+
+#agTrans-icon{
+  width:76px;height:76px;border-radius:20px;background:var(--s2);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:22px;
+  transform:scale(0) rotate(-20deg);
+  transition:transform .55s cubic-bezier(.34,1.56,.64,1) .05s;
+}
+#agTrans-icon svg{stroke:#888;width:30px;height:30px;}
+#agTrans.show #agTrans-icon{transform:scale(1) rotate(0);}
+#agTrans-text{
+  font-size:20px;font-weight:700;color:#fff;text-align:center;max-width:300px;
+  opacity:0;transform:translateY(12px);
+  transition:opacity .4s ease .25s,transform .4s ease .25s;
+}
+#agTrans.show #agTrans-text{opacity:1;transform:translateY(0);}
+#agTrans-model{
+  font-size:12px;color:rgba(255,255,255,.35);margin-top:10px;letter-spacing:.3px;
+  opacity:0;transition:opacity .4s ease .4s;
+}
+#agTrans.show #agTrans-model{opacity:1;}
+
+/* ══ SPLASH PARTICLES ══ */
+.sp{position:absolute;border-radius:50%;background:#fff;pointer-events:none;opacity:0;}
+.sp.burst{animation:spBurst var(--dur,.8s) ease-out forwards;}
+@keyframes spBurst{
+  0%{opacity:.7;transform:translate(0,0) scale(1)}
+  100%{opacity:0;transform:translate(var(--tx2,0px),var(--ty2,-60px)) scale(0)}
+}
+
+/* ══ SPLASH BRAIN ══ */
+#splash-brain{
+  display:inline-flex;align-items:center;
+  opacity:0;
+  transform:translateX(-70px);
+  transition:transform .85s cubic-bezier(.34,1.56,.64,1),opacity .5s ease;
+  margin-right:6px;
+}
+#splash-brain.show{opacity:1;transform:translateX(0);}
+#splash-brain svg{
+  width:78px;height:78px;
+  transition:filter .4s ease;
+}
+
+#splash-brain.glow svg{
+  animation:splashBrainGlow 1.6s ease-in-out infinite alternate;
+}
+@keyframes splashBrainGlow{
+  from{filter:drop-shadow(0 0 16px rgba(68,204,255,.8)) drop-shadow(0 0 32px rgba(85,51,238,.5))}
+  to{filter:drop-shadow(0 0 28px rgba(85,51,238,.9)) drop-shadow(0 0 60px rgba(153,51,221,.6)) drop-shadow(0 0 90px rgba(68,204,255,.25))}
+}

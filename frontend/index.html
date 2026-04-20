@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark" data-lang="ru">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MAX AI Hub</title>
+<link rel="stylesheet" href="styles/base.css">
+<link rel="stylesheet" href="styles/splash.css">
+<link rel="stylesheet" href="styles/auth.css">
+<link rel="stylesheet" href="styles/layout.css">
+<link rel="stylesheet" href="styles/chat.css">
+<link rel="stylesheet" href="styles/agents.css">
+<link rel="stylesheet" href="styles/settings.css">
+<link rel="stylesheet" href="styles/profile.css">
+<link rel="stylesheet" href="styles/components.css">
+</head>
+<body>
+
+<!-- ══ BG FLOATING TEXT ══ -->
+<div id="bgWords" aria-hidden="true"><div id="bgWords-inner"></div></div>
+
+<!-- ══ AUTH SCREEN ══ -->
+<div id="authScreen" role="dialog" aria-modal="true" aria-labelledby="authTitleMain">
+  <div class="auth-bg-orb"></div>
+  <div class="auth-bg-orb"></div>
+  <div class="auth-card">
+    <div class="auth-logo-wrap">
+      <img src="logo.svg" alt="MAX AI" class="auth-logo-img"/>
+    </div>
+
+    <!-- Step 1: Email -->
+    <div id="authStep1" class="auth-step">
+      <span class="sr-only" id="authTitleMain">Auth</span>
+      <div class="auth-title">Добро пожаловать</div>
+      <div class="auth-sub">Введите вашу почту для входа</div>
+      <div class="auth-inp-wrap">
+        <label class="sr-only" for="authEmail">Email</label>
+        <input class="auth-inp" type="email" id="authEmail" placeholder="example@mail.ru"
+          autocomplete="email" data-i18n-placeholder="auth.emailPlaceholder" onkeydown="if(event.key==='Enter')authSubmitEmail()">
+      </div>
+      <button class="auth-btn rh" onclick="authSubmitEmail()">Продолжить</button>
+    </div>
+
+    <!-- Step 2: Password / Register -->
+    <div id="authStep2" class="auth-step" style="display:none;opacity:0">
+      <div class="auth-title" id="authStep2Title">Введите пароль</div>
+      <div class="auth-sent-info">Аккаунт: <strong id="authEmailShow"></strong></div>
+      <div class="auth-inp-wrap" style="position:relative">
+        <label class="sr-only" for="authPassword">Пароль</label>
+        <input class="auth-inp" type="password" id="authPassword" placeholder="••••••••"
+          autocomplete="current-password" data-i18n-placeholder="auth.passwordPlaceholder" onkeydown="if(event.key==='Enter')authSubmitCode()">
+        <button onclick="togglePwdVis()" type="button" aria-label="Показать пароль" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;padding:4px;transition:color .15s" id="pwdEyeBtn">
+          <svg id="pwdEyeIcon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" viewBox="0 0 24 24">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+          </svg>
+        </button>
+      </div>
+      <div id="authConfirmWrap" style="display:none">
+        <div class="auth-inp-wrap">
+          <label class="sr-only" for="authConfirmPwd">Confirm password</label>
+          <input class="auth-inp" type="password" id="authConfirmPwd" placeholder="Повторите пароль"
+            autocomplete="new-password" onkeydown="if(event.key==='Enter')authSubmitCode()">
+        </div>
+      </div>
+      <button class="auth-btn rh" id="authCodeBtn" onclick="authSubmitCode()">Войти</button>
+      <button class="auth-back" onclick="authGoBack()">← Изменить почту</button>
+      <button class="auth-mode-toggle" onclick="toggleRegMode()"><span id="authModeToggleText">Нет аккаунта? Зарегистрироваться →</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SPLASH ══ -->
+<div id="splash">
+  <div id="splash-letters">
+    <div id="splash-brain">
+      <svg viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="sg" x1="117.847" x2="1000" y1="760.536" y2="500" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#44ccff"/>
+            <stop offset=".662" stop-color="#5533ee"/>
+            <stop offset="1" stop-color="#9933dd"/>
+          </linearGradient>
+        </defs>
+        <path fill="url(#sg)" fill-rule="evenodd" d="M508.211 878.328c-75.007 0-109.864-10.95-170.453-54.75-38.325 49.275-159.686 87.783-164.979 21.9 0-49.456-10.95-91.248-23.36-136.873-14.782-56.21-31.572-118.807-31.572-209.508 0-216.626 177.754-379.597 388.357-379.597 210.785 0 375.947 171.001 375.947 381.604.707 207.346-166.595 376.118-373.94 377.224m3.103-571.585c-102.564-5.292-182.499 65.7-200.201 177.024-14.6 92.162 11.315 204.398 33.397 210.238 10.585 2.555 37.23-18.98 53.837-35.587a189.8 189.8 0 0 0 92.71 33.032c106.273 5.112 197.08-75.794 204.215-181.95 4.154-106.382-77.67-196.486-183.958-202.574Z" clip-rule="evenodd"/>
+      </svg>
+    </div>
+    <span class="sl" id="sl-m">M</span>
+    <span class="sl" id="sl-a">A</span>
+    <span class="sl" id="sl-x">X</span>
+  </div>
+  <div id="splash-sub"></div>
+</div>
+
+<!-- ══ AGENT TRANSITION OVERLAY ══ -->
+<div id="agTrans">
+  <div id="agTrans-icon"></div>
+  <div id="agTrans-text">Чем могу вам помочь?</div>
+  <div id="agTrans-model"></div>
+</div>
+
+<!-- ══ AGENT DETAIL MODAL ══ -->
+<div id="agModal" onclick="closeAgModal(event)">
+  <div class="agm-inner">
+    <button class="agm-close rh" onclick="closeAgModal()">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+    <div class="agm-icon" id="agmIcon"></div>
+    <div class="agm-name" id="agmName"></div>
+    <div class="agm-badge">
+      <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+      <span id="agmModel"></span>
+    </div>
+    <div class="agm-desc" id="agmDesc"></div>
+    <ul class="agm-feats" id="agmFeats"></ul>
+    <div class="agm-btns">
+      <button class="agm-btn-back" onclick="closeAgModal()">Назад</button>
+      <button class="agm-btn-start rh" id="agmStart">Перейти в чат</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ APP ══ -->
+<div class="app" id="appRoot">
+
+<!-- SIDEBAR -->
+<aside class="sb" id="sb" aria-label="Основная навигация">
+  <div class="sb-head">
+    <img src="logo.svg" class="sb-logo" alt="MAX" width="22" height="22" onclick="if(col)expandSb()"/>
+    <span class="sb-title">MAX AI Hub</span>
+    <button class="sb-collapse rh" id="collapseBtn" onclick="toggleSb()" title="Свернуть / Развернуть">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" viewBox="0 0 24 24">
+        <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="16" y2="12"/><line x1="3" y1="18" x2="19" y2="18"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="sb-nav">
+    <button class="ni rh act" id="nav-chat" onclick="newChat()">
+      <svg class="ni-ic" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+        <path d="M12 5v14"/><path d="M5 12h14"/>
+      </svg>
+      <span class="ni-lb" data-i18n="nav.chat">Чат</span>
+      <div class="ni-dot"></div>
+    </button>
+    <button class="ni rh" id="nav-agents" onclick="sw('agents',this)">
+      <svg class="ni-ic" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" viewBox="0 0 24 24">
+        <rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/>
+        <rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>
+      </svg>
+      <span class="ni-lb" data-i18n="nav.agents">Агенты</span>
+      <div class="ni-dot"></div>
+    </button>
+    <button class="ni rh" id="nav-settings" onclick="sw('settings',this)">
+      <svg class="ni-ic" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" viewBox="0 0 24 24">
+        <line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/>
+        <circle cx="9" cy="6" r="2.2" fill="var(--onyx)"/>
+        <circle cx="15" cy="12" r="2.2" fill="var(--onyx)"/>
+        <circle cx="9" cy="18" r="2.2" fill="var(--onyx)"/>
+      </svg>
+      <span class="ni-lb" data-i18n="nav.settings">Настройки</span>
+      <div class="ni-dot"></div>
+    </button>
+  </div>
+
+  <div class="sb-new">
+    <button class="btn-nc rh" onclick="newChat()">
+      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" viewBox="0 0 24 24">
+        <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+        <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+      </svg>
+      <span class="btn-nc-lb" data-i18n="btn.newChat">Новый чат</span>
+    </button>
+  </div>
+
+  <div class="sb-hist" id="sb-hist">
+    <div style="padding:12px 10px;font-size:11.5px;color:var(--dim)">Загрузка истории...</div>
+  </div>
+
+  <div class="sb-foot">
+    <div class="u-row" onclick="openProfile()" title="Профиль">
+      <div class="u-av" id="sbAvatar">МТ</div>
+      <div class="u-info">
+        <div class="u-n" id="sbUserName">MTS User</div>
+        <div class="u-p" id="sbUserPlan">Pro план</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <button class="mobile-menu-btn rh" id="mobileMenuBtn" type="button" onclick="toggleSb()" aria-controls="sb" aria-expanded="false" aria-label="Открыть меню">
+    <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" viewBox="0 0 24 24">
+      <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+    </svg>
+  </button>
+  <div class="panels">
+
+    <!-- CHAT -->
+    <div class="panel act" id="panel-chat">
+      <div class="chat-hero" id="chatHero">
+        <div id="heroAgentIcon" class="hero-agent-icon" style="display:none"></div>
+        <div class="hero-copy hero-copy-min">
+          <div class="hero-title hero-title-min" data-i18n="hero.minTitle">Новый чат</div>
+        </div>
+        <div class="hero-inp-wrap">
+          <div class="inp-bar" id="heroBar">
+            <div class="f-chips" id="fChipsHero"></div>
+            <div class="inp-row">
+              <label class="sr-only" for="inpHero">Chat prompt</label>
+              <textarea class="inp-ta" id="inpHero" placeholder="Спросите что угодно..." rows="1"
+                data-i18n-placeholder="chat.placeholder" oninput="syncTA(this)" onkeydown="handleK(event,'hero')"></textarea>
+            </div>
+            <div class="inp-tools">
+              <button class="btn-file rh" type="button" onclick="document.getElementById('fInH').click()" title="Прикрепить файл" aria-label="Attach file">
+                <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" viewBox="0 0 24 24">
+                  <path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.2-9.19a4 4 0 015.66 5.65L9.64 16.2a2 2 0 01-2.83-2.83l8.49-8.48"/>
+                </svg>
+              </button>
+              <input type="file" id="fInH" style="display:none" multiple onchange="handleF(this.files,'fChipsHero')">
+              <button class="btn-voice rh" id="vBtnH" type="button" onclick="toggleV('H')" title="Голосовой ввод" aria-label="Voice input">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" viewBox="0 0 24 24">
+                  <path d="M12 1a3 3 0 00-3 3v7a3 3 0 006 0V4a3 3 0 00-3-3z"/>
+                  <path d="M5 10a7 7 0 0014 0"/>
+                  <line x1="12" y1="17" x2="12" y2="21"/><line x1="8" y1="21" x2="16" y2="21"/>
+                </svg>
+              </button>
+              <div class="vw" id="vWaveH"><div class="vb"></div><div class="vb"></div><div class="vb"></div><div class="vb"></div><div class="vb"></div></div>
+              <span class="v-timer" id="vTimerH">00:00</span>
+              <div class="it-gap"></div>
+              <div class="m-pill-wrap">
+                <button class="m-pill rh" id="mPillH" type="button" onclick="toggleMDD(event,'mDDH','mPillH')" aria-expanded="false" aria-label="Choose model">
+                  <div class="mp-dot auto-dot" id="mpDotH"></div>
+                  <span class="m-name-txt">Авто</span>
+                  <span class="mp-c">▾</span>
+                </button>
+                <div class="m-dd" id="mDDH"></div>
+              </div>
+              <button class="send rh" id="sendH" type="button" onclick="sendOrStopVoice('H')" aria-label="Send prompt">
+                <span class="ico-send"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></span>
+                <span class="ico-voice-stop"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24"><rect x="3" y="3" width="4" height="18" rx="1"/><rect x="10" y="6" width="4" height="12" rx="1"/><rect x="17" y="1" width="4" height="22" rx="1"/></svg></span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-scroll" id="chatScroll">
+        <div class="chat-inner" id="chatInner"></div>
+      </div>
+
+      <div class="inp-zone-bottom" id="inpZoneBottom">
+        <div class="inp-wrap">
+          <div class="inp-bar" id="bottomBar">
+            <div class="f-chips" id="fChipsBot"></div>
+            <div class="inp-row">
+              <label class="sr-only" for="inpBot">Chat prompt</label>
+              <textarea class="inp-ta" id="inpBot" placeholder="Спросите что угодно..." rows="1"
+                data-i18n-placeholder="chat.placeholder" oninput="syncTA(this)" onkeydown="handleK(event,'bot')"></textarea>
+            </div>
+            <div class="inp-tools">
+              <button class="btn-file rh" type="button" onclick="document.getElementById('fInB').click()" title="Прикрепить файл" aria-label="Attach file">
+                <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" viewBox="0 0 24 24">
+                  <path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.2-9.19a4 4 0 015.66 5.65L9.64 16.2a2 2 0 01-2.83-2.83l8.49-8.48"/>
+                </svg>
+              </button>
+              <input type="file" id="fInB" style="display:none" multiple onchange="handleF(this.files,'fChipsBot')">
+              <button class="btn-voice rh" id="vBtnB" type="button" onclick="toggleV('B')" title="Голосовой ввод" aria-label="Voice input">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" viewBox="0 0 24 24">
+                  <path d="M12 1a3 3 0 00-3 3v7a3 3 0 006 0V4a3 3 0 00-3-3z"/>
+                  <path d="M5 10a7 7 0 0014 0"/>
+                  <line x1="12" y1="17" x2="12" y2="21"/><line x1="8" y1="21" x2="16" y2="21"/>
+                </svg>
+              </button>
+              <div class="vw" id="vWaveB"><div class="vb"></div><div class="vb"></div><div class="vb"></div><div class="vb"></div><div class="vb"></div></div>
+              <span class="v-timer" id="vTimerB">00:00</span>
+              <div class="it-gap"></div>
+              <div class="m-pill-wrap">
+                <button class="m-pill rh" id="mPillB" type="button" onclick="toggleMDD(event,'mDDB','mPillB')" aria-expanded="false" aria-label="Choose model">
+                  <div class="mp-dot auto-dot" id="mpDotB"></div>
+                  <span class="m-name-txt">Авто</span>
+                  <span class="mp-c">▾</span>
+                </button>
+                <div class="m-dd" id="mDDB"></div>
+              </div>
+              <button class="send rh" id="sendB" type="button" onclick="sendOrStopVoice('B')" aria-label="Send prompt">
+                <span class="ico-send"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></span>
+                <span class="ico-voice-stop"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24"><rect x="3" y="3" width="4" height="18" rx="1"/><rect x="10" y="6" width="4" height="12" rx="1"/><rect x="17" y="1" width="4" height="22" rx="1"/></svg></span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /panel-chat -->
+
+    <!-- AGENTS -->
+    <div class="panel" id="panel-agents">
+      <div class="ag-wrap">
+        <div class="ag-h" data-i18n="nav.agents">Агенты</div>
+        <div class="ag-sub" data-i18n="ag.sub">Специализированные ИИ-агенты под конкретные задачи</div>
+        <div class="ag-search-wrap">
+          <svg class="ag-search-icon" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="ag-search" id="agSearch" type="text" placeholder="Поиск агентов..." oninput="filterAgents(this.value)">
+        </div>
+        <div class="ag-grid" id="agGrid"></div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="panel" id="panel-settings">
+      <div class="st-scroll">
+        <div class="st-inner">
+          <div class="st-h" data-i18n="nav.settings">Настройки</div>
+
+          <div class="st-sec">
+            <div class="st-sec-lbl" data-i18n="st.interface">Интерфейс</div>
+            <div class="st-card">
+              <div class="st-row">
+                <svg class="st-ic" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+                <div class="st-info"><div class="st-lbl" data-i18n="st.lightTheme">Светлая тема</div><div class="st-sub" data-i18n="st.lightThemeSub">Переключить цветовую схему</div></div>
+                <div class="st-ctrl"><button class="tgl" id="thTgl" onclick="toggleTheme(this)"></button></div>
+              </div>
+              <div class="st-row">
+                <svg class="st-ic" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg>
+                <div class="st-info"><div class="st-lbl" data-i18n="st.lang">Язык интерфейса</div><div class="st-sub" id="langSub">Русский выбран</div></div>
+                <div class="st-ctrl">
+                  <div class="sel-wrap">
+                    <button class="sel-btn rh" id="langBtn" onclick="togglePop('pLang',event,this)">
+                      <span id="langVal">Русский</span><span class="sel-c">▾</span>
+                    </button>
+                    <div class="sel-pop" id="pLang">
+                      <div class="sel-opt on" onclick="pickLang(event,this,'ru','Русский','Русский выбран')"><span class="sel-chk">✓</span>Русский</div>
+                      <div class="sel-opt"    onclick="pickLang(event,this,'en','English','English selected')"><span class="sel-chk"></span>English</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="st-row">
+                <svg class="st-ic" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 21V9"/></svg>
+                <div class="st-info"><div class="st-lbl" data-i18n="st.compact">Компактный режим</div><div class="st-sub" data-i18n="st.compactSub">Уменьшить отступы</div></div>
+                <div class="st-ctrl"><button class="tgl" data-setting="compact" onclick="toggleCompact(this)"></button></div>
+              </div>
+              <div class="st-row">
+                <svg class="st-ic" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" viewBox="0 0 24 24"><path d="M4 6h16M4 10h16M4 14h10"/><circle cx="17" cy="17" r="3"/><path d="M17 15v2l1 1"/></svg>
+                <div class="st-info"><div class="st-lbl">Анимированный фон</div><div class="st-sub">Надписи на разных языках на фоне</div></div>
+                <div class="st-ctrl"><button class="tgl on" id="bgWordsTgl" onclick="toggleBgWords(this);this.classList.toggle('on')"></button></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="st-sec">
+            <div class="st-sec-lbl" data-i18n="st.models">Модели и агенты</div>
+            <div class="st-card">
+              <div class="st-row">
+                <svg class="st-ic" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+                <div class="st-info"><div class="st-lbl" data-i18n="st.autoModel">Автовыбор модели</div><div class="st-sub" data-i18n="st.autoModelSub">Оптимальная под задачу</div></div>
+                <div class="st-ctrl"><button class="tgl on" onclick="this.classList.toggle('on')"></button></div>
+              </div>
+              <div class="st-row">
+                <svg class="st-ic" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                <div class="st-info"><div class="st-lbl" data-i18n="st.temp">Температура</div><div class="st-sub" id="tempSub">Баланс точности и творчества</div></div>
+                <div class="st-ctrl">
+                  <div class="sel-wrap">
+                    <button class="sel-btn rh" id="tempBtn" onclick="togglePop('pTemp',event,this)">
+                      <span id="tempVal">0.7 — Баланс</span><span class="sel-c">▾</span>
+                    </button>
+                    <div class="sel-pop" id="pTemp">
+                      <div class="sel-opt"    onclick="pickTemp(event,this,'0.1 — Детерминированный','Максимальная точность')"><span class="sel-chk"></span>0.1 — Детерминированный</div>
+                      <div class="sel-opt"    onclick="pickTemp(event,this,'0.3 — Точный','Высокая точность')"><span class="sel-chk"></span>0.3 — Точный</div>
+                      <div class="sel-opt on" onclick="pickTemp(event,this,'0.7 — Баланс','Баланс точности и творчества')"><span class="sel-chk">✓</span>0.7 — Баланс</div>
+                      <div class="sel-opt"    onclick="pickTemp(event,this,'1.0 — Творческий','Свободная генерация')"><span class="sel-chk"></span>1.0 — Творческий</div>
+                      <div class="sel-opt"    onclick="pickTemp(event,this,'1.5 — Хаотичный','Максимальное разнообразие')"><span class="sel-chk"></span>1.5 — Хаотичный</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="st-row">
+                <svg class="st-ic" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                <div class="st-info"><div class="st-lbl" data-i18n="st.memory">Память агентов</div><div class="st-sub" data-i18n="st.memorySub">Контекст между сессиями</div></div>
+                <div class="st-ctrl"><button class="tgl on" data-setting="agentMemory" onclick="toggleAgentMemory(this)"></button></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="st-sec">
+            <div class="st-sec-lbl" data-i18n="st.voice">Голос и ввод</div>
+            <div class="st-card">
+              <div class="st-row">
+                <svg class="st-ic" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" viewBox="0 0 24 24"><path d="M12 1a3 3 0 00-3 3v7a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M5 10a7 7 0 0014 0"/><line x1="12" y1="17" x2="12" y2="21"/><line x1="8" y1="21" x2="16" y2="21"/></svg>
+                <div class="st-info"><div class="st-lbl" data-i18n="st.voiceInput">Голосовой ввод</div><div class="st-sub" data-i18n="st.voiceInputSub">Распознавание через микрофон</div></div>
+                <div class="st-ctrl"><button class="tgl on" data-setting="voiceInput" onclick="toggleVoiceInput(this)"></button></div>
+              </div>
+              <div class="st-row">
+                <svg class="st-ic" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9z"/></svg>
+                <div class="st-info"><div class="st-lbl" data-i18n="st.enterSend">Отправка по Enter</div><div class="st-sub" data-i18n="st.enterSendSub">Shift+Enter — перенос строки</div></div>
+                <div class="st-ctrl"><button class="tgl on" data-setting="enterSend" onclick="toggleEnterSend(this)"></button></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="st-sec">
+            <div class="st-sec-lbl" data-i18n="st.privacy">Конфиденциальность</div>
+            <div class="st-card">
+              <div class="st-row">
+                <svg class="st-ic" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                <div class="st-info"><div class="st-lbl" data-i18n="st.history">История чатов</div><div class="st-sub" data-i18n="st.historySub">Сохранять на сервере</div></div>
+                <div class="st-ctrl"><button class="tgl on" data-setting="saveHistory" onclick="toggleSaveHistory(this)"></button></div>
+              </div>
+              <div class="st-row">
+                <svg class="st-ic" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+                <div class="st-info"><div class="st-lbl" data-i18n="st.analytics">Аналитика</div><div class="st-sub" data-i18n="st.analyticsSub">Анонимные данные</div></div>
+                <div class="st-ctrl"><button class="tgl" onclick="this.classList.toggle('on')"></button></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+</div><!-- /app -->
+
+<!-- ══ PROFILE OVERLAY ══ -->
+<div id="profileOverlay" role="dialog" aria-modal="true" aria-labelledby="profName" onclick="closeProfileOuter(event)">
+  <div class="prof-inner">
+    <button class="prof-close rh" type="button" onclick="closeProfile()" aria-label="Close profile">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+    <div class="prof-av-section">
+      <div class="prof-av rh" id="profAv">
+        <span id="profAvInitials">МТ</span>
+        <div class="prof-av-overlay">
+          <svg width="18" height="18" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+        </div>
+      </div>
+      <div class="prof-av-name" id="profName">MTS User</div>
+      <div class="prof-plan-badge">
+        <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        <span id="profPlan">Pro план</span>
+      </div>
+    </div>
+    <div class="prof-sep"></div>
+
+    <!-- Tabs -->
+    <div class="prof-tabs">
+      <button class="prof-tab act" onclick="switchProfTab('account',this)">Аккаунт</button>
+      <button class="prof-tab" onclick="switchProfTab('security',this)">Безопасность</button>
+      <button class="prof-tab" onclick="switchProfTab('billing',this)">Подписка</button>
+    </div>
+
+    <!-- Tab: Account -->
+    <div class="prof-tab-panel act" id="profTab-account">
+      <div class="prof-fields">
+        <div class="prof-field">
+          <div class="prof-lbl">Имя</div>
+          <input class="prof-inp" type="text" id="profInpName" value="MTS User" placeholder="Ваше имя">
+        </div>
+        <div class="prof-field">
+          <div class="prof-lbl">Email</div>
+          <input class="prof-inp" type="email" id="profInpEmail" value="" placeholder="your@email.ru">
+        </div>
+        <div class="prof-field">
+          <div class="prof-lbl">Организация</div>
+          <input class="prof-inp" type="text" id="profInpOrg" value="" placeholder="Компания или проект">
+        </div>
+      </div>
+      <button class="prof-save rh" onclick="saveProfile()">Сохранить изменения</button>
+      <button class="prof-logout rh" onclick="logoutProfile()">Выйти из аккаунта</button>
+    </div>
+
+    <!-- Tab: Security -->
+    <div class="prof-tab-panel" id="profTab-security">
+      <div class="prof-fields">
+        <div class="prof-field">
+          <div class="prof-lbl">Текущий пароль</div>
+          <input class="prof-inp" type="password" id="profPwdCurrent" placeholder="••••••••">
+        </div>
+        <div class="prof-field">
+          <div class="prof-lbl">Новый пароль</div>
+          <input class="prof-inp" type="password" id="profPwdNew" placeholder="Минимум 8 символов" oninput="checkPwdStrength(this.value)">
+          <div class="prof-pwd-strength"><div class="prof-pwd-bar" id="profPwdBar"></div></div>
+        </div>
+        <div class="prof-field">
+          <div class="prof-lbl">Подтвердите пароль</div>
+          <input class="prof-inp" type="password" id="profPwdConfirm" placeholder="••••••••">
+        </div>
+      </div>
+      <button class="prof-save rh" onclick="changePassword()">Сменить пароль</button>
+    </div>
+
+    <!-- Tab: Billing -->
+    <div class="prof-tab-panel" id="profTab-billing">
+      <div class="prof-plans" id="profPlans">
+        <div class="prof-plan-card" id="plan-free" onclick="selectPlan('free')">
+          <div class="prof-plan-head">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div class="prof-plan-radio" id="radio-free"></div>
+              <div class="prof-plan-name">Бесплатный</div>
+            </div>
+            <div class="prof-plan-price">0 ₽/мес</div>
+          </div>
+          <div class="prof-plan-desc">Базовый доступ к ИИ-ассистенту для личного использования</div>
+          <div class="prof-plan-badge-row">
+            <span class="prof-plan-feat">50 запросов/день</span>
+            <span class="prof-plan-feat">3 агента</span>
+            <span class="prof-plan-feat">GPT-4o mini</span>
+          </div>
+        </div>
+        <div class="prof-plan-card selected" id="plan-pro" onclick="selectPlan('pro')">
+          <div class="prof-plan-head">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div class="prof-plan-radio" id="radio-pro"></div>
+              <div class="prof-plan-name">Pro</div>
+            </div>
+            <div class="prof-plan-price">990 ₽/мес</div>
+          </div>
+          <div class="prof-plan-desc">Полный доступ ко всем агентам и приоритетным моделям</div>
+          <div class="prof-plan-badge-row">
+            <span class="prof-plan-feat">Безлимит</span>
+            <span class="prof-plan-feat">Все агенты</span>
+            <span class="prof-plan-feat">GPT-4o + Claude</span>
+            <span class="prof-plan-feat">Приоритет</span>
+          </div>
+        </div>
+        <div class="prof-plan-card" id="plan-enterprise" onclick="selectPlan('enterprise')">
+          <div class="prof-plan-head">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div class="prof-plan-radio" id="radio-enterprise"></div>
+              <div class="prof-plan-name">Enterprise</div>
+            </div>
+            <div class="prof-plan-price">По запросу</div>
+          </div>
+          <div class="prof-plan-desc">Корпоративное решение с SLA, выделенными ресурсами и интеграцией</div>
+          <div class="prof-plan-badge-row">
+            <span class="prof-plan-feat">Безлимит</span>
+            <span class="prof-plan-feat">SLA 99.9%</span>
+            <span class="prof-plan-feat">Все модели</span>
+            <span class="prof-plan-feat">API доступ</span>
+            <span class="prof-plan-feat">Поддержка 24/7</span>
+          </div>
+        </div>
+      </div>
+      <button class="prof-save rh" onclick="savePlan()">Применить тариф</button>
+    </div>
+  </div>
+</div>
+
+<div id="historyModal" class="history-modal" role="dialog" aria-modal="true" aria-labelledby="historyModalTitle" aria-hidden="true" onclick="if(event.target===this)closeHistoryModal()">
+  <div class="history-modal-card">
+    <button class="history-modal-close rh" type="button" onclick="closeHistoryModal()" aria-label="Close dialog">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+    <div class="history-modal-eyebrow" id="historyModalEyebrow">История</div>
+    <div class="history-modal-title" id="historyModalTitle">Изменить название</div>
+    <div class="history-modal-copy" id="historyModalCopy">Обновите название, чтобы нужный диалог было легче найти позже.</div>
+    <div class="history-modal-field" id="historyModalField">
+      <label class="history-modal-label" for="historyModalInput">Название диалога</label>
+      <input class="history-modal-input" type="text" id="historyModalInput" maxlength="80" autocomplete="off">
+    </div>
+    <div class="history-modal-actions">
+      <button class="history-modal-btn history-modal-btn-ghost rh" type="button" id="historyModalCancel" onclick="closeHistoryModal()">Отмена</button>
+      <button class="history-modal-btn history-modal-btn-danger rh" type="button" id="historyModalConfirm">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<div class="ov" id="ov" onclick="handleOverlayClick()"></div>
+<div id="toastRoot"></div>
+
+<!-- ══ SCRIPTS — dependency order: utils first, main last ══ -->
+<script src="js/utils.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/api.js"></script>
+<script src="js/models.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/auth-ui.js"></script>
+<script src="js/agents.js"></script>
+<script src="js/history.js"></script>
+<script src="js/voice.js"></script>
+<script src="js/chat.js"></script>
+<script src="js/profile.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

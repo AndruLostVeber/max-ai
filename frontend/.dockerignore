@@ -1,0 +1,12 @@
+.git
+.gitignore
+.idea
+.vscode
+__pycache__
+*.pyc
+*.pyo
+.pytest_cache
+review.txt
+server.py
+append_js.py
+write_js.py

@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Environment files
+.env
+*.env.local
+
+# Build and runtime artifacts
+dist/
+build/
+*.log
+*.sqlite3
+*.db
+
+# Frontend / misc local artifacts
+node_modules/
+coverage/
+*.mp3
+review.txt
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Claude Code metadata
+.claude/
+
+# Coverage reports
+.coverage
+backend/.coverage
