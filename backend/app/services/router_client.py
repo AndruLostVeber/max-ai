@@ -30,7 +30,7 @@ TASK_MODELS: dict[str, str] = {
     "vlm":           "meta/llama-3.2-90b-vision-instruct",
     "web_search":    "mistralai/mistral-small-4-119b-2603",
     "web_parse":     "mistralai/mistral-small-4-119b-2603",
-    "file_qa":       "nvidia/nemoretriever-parse",
+    "file_qa":       "nvidia/llama-3.3-nemotron-super-49b-v1",
 }
 
 AUDIO_EXTS = {".mp3", ".wav", ".ogg", ".m4a", ".flac"}
@@ -72,7 +72,7 @@ _LLM_SYSTEM = (
     '{"message":"Расскажи подробно про квантовые вычисления"} → {"task_type":"text","confidence":0.72}\n'
 )
 
-LLM_ROUTER_MODEL = "mistralai/mistral-small-4-119b-2603"
+LLM_ROUTER_MODEL = "meta/llama-3.1-8b-instruct"
 LLM_ROUTER_TIMEOUT = 60.0
 
 
